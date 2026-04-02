@@ -1,18 +1,14 @@
 import { useState } from "react";
-import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-function Signup() {
+export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const navigate = useNavigate();
-
-  const handleSignup = async (e) => {
-    e.preventDefault();
-
+  const handleSignup = async () => {
     try {
       const res = await createUserWithEmailAndPassword(
         auth,
@@ -20,54 +16,48 @@ function Signup() {
         password
       );
 
-      // 🔥 store user in firestore
       await setDoc(doc(db, "users", res.user.uid), {
+        email,
         uid: res.user.uid,
-        email: res.user.email,
-        isOnline: true,
       });
 
-      navigate("/");
     } catch (err) {
       alert(err.message);
     }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-900">
-      <form onSubmit={handleSignup} className="bg-gray-800 p-8 rounded w-80">
-        <h2 className="text-white text-xl mb-4">Signup</h2>
+    <div className="h-screen flex items-center justify-center bg-slate-900">
+      <div className="bg-slate-800 p-8 rounded-xl w-96 shadow-lg">
+        <h2 className="text-white text-2xl mb-6 text-center">Signup</h2>
 
         <input
-          type="email"
+          className="w-full mb-4 p-3 rounded bg-slate-700 text-white"
           placeholder="Email"
-          className="w-full mb-3 p-2 bg-gray-700 text-white rounded"
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
           type="password"
+          className="w-full mb-4 p-3 rounded bg-slate-700 text-white"
           placeholder="Password"
-          className="w-full mb-3 p-2 bg-gray-700 text-white rounded"
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button className="w-full bg-blue-500 p-2 rounded text-white">
+        <button
+          onClick={handleSignup}
+          className="w-full bg-green-600 p-3 rounded text-white hover:bg-green-700"
+        >
           Signup
         </button>
 
-        <p className="text-sm text-gray-400 mt-3">
+        <p className="text-gray-400 mt-4 text-center">
           Already have an account?{" "}
-          <span
-            onClick={() => navigate("/login")}
-            className="text-blue-400 cursor-pointer"
-          >
+          <Link to="/" className="text-blue-400">
             Login
-          </span>
+          </Link>
         </p>
-      </form>
+      </div>
     </div>
   );
 }
-
-export default Signup;

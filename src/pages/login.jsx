@@ -1,77 +1,52 @@
 import { useState } from "react";
-import { auth, db } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, updateDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import { Link } from "react-router-dom";
 
-function Login() {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const navigate = useNavigate();
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
+  const handleLogin = async () => {
     try {
-      const res = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      // 🔥 set online
-      await updateDoc(doc(db, "users", res.user.uid), {
-        isOnline: true,
-      });
-
-      navigate("/");
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
-      if (err.code === "auth/user-not-found") {
-        alert("User not found. Please sign up.");
-      } else if (err.code === "auth/wrong-password") {
-        alert("Wrong password.");
-      } else {
-        alert(err.message);
-      }
+      alert(err.message);
     }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-900">
-      <form onSubmit={handleLogin} className="bg-gray-800 p-8 rounded w-80">
-        <h2 className="text-white text-xl mb-4">Login</h2>
+    <div className="h-screen flex items-center justify-center bg-slate-900">
+      <div className="bg-slate-800 p-8 rounded-xl w-96 shadow-lg">
+        <h2 className="text-white text-2xl mb-6 text-center">Login</h2>
 
         <input
-          type="email"
+          className="w-full mb-4 p-3 rounded bg-slate-700 text-white"
           placeholder="Email"
-          className="w-full mb-3 p-2 bg-gray-700 text-white rounded"
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
           type="password"
+          className="w-full mb-4 p-3 rounded bg-slate-700 text-white"
           placeholder="Password"
-          className="w-full mb-3 p-2 bg-gray-700 text-white rounded"
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button className="w-full bg-blue-500 p-2 rounded text-white">
+        <button
+          onClick={handleLogin}
+          className="w-full bg-blue-600 p-3 rounded text-white hover:bg-blue-700"
+        >
           Login
         </button>
 
-        <p className="text-sm text-gray-400 mt-3">
-          Don’t have an account?{" "}
-          <span
-            onClick={() => navigate("/signup")}
-            className="text-blue-400 cursor-pointer"
-          >
+        <p className="text-gray-400 mt-4 text-center">
+          No account?{" "}
+          <Link to="/signup" className="text-blue-400">
             Signup
-          </span>
+          </Link>
         </p>
-      </form>
+      </div>
     </div>
   );
 }
-
-export default Login;
